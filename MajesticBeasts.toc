@@ -1,0 +1,17 @@
+## Interface: 120100, 120105
+## Title: Majestic Beasts
+## Notes: Shows where to place each Midnight skinning lure to summon the Majestic Beasts, with map pins and waypoints.
+## Author: icouldonlygetthisname
+## Version: 1.0.0
+## IconTexture: Interface\Icons\INV_Misc_Pelt_Wolf_01
+## Category: Professions
+## SavedVariables: MajesticBeastsDB
+## OptionalDeps: TomTom
+## AddonCompartmentFunc: MajesticBeasts_OnAddonCompartmentClick
+
+Data.lua
+Core.lua
+Craft.lua
+Map.lua
+Map.xml
+UI.lua
