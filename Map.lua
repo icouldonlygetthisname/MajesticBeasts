@@ -7,6 +7,7 @@ function ns.AddBeastTooltip(tooltip, beast)
 	tooltip:AddLine(beast.kind, 0.7, 0.7, 0.7)
 	tooltip:AddDoubleLine("Lure", ns.GetLureName(beast), 1, 1, 1, 0.64, 0.21, 0.93)
 	tooltip:AddDoubleLine("Location", ("%s %s"):format(beast.zone, ns.FormatCoords(beast)), 1, 1, 1, 1, 1, 1)
+	tooltip:AddDoubleLine("Today", ns.GetAvailabilityText(beast), 1, 1, 1, 1, 1, 1)
 	tooltip:AddDoubleLine("In bags", tostring(ns.GetLureCount(beast)), 1, 1, 1, 1, 1, 1)
 	if beast.points > 0 then
 		tooltip:AddDoubleLine("Recipe unlock", beast.points .. " skinning spec points", 1, 1, 1, 1, 1, 1)
@@ -35,6 +36,9 @@ end
 function MajesticBeastsPinMixin:OnAcquired(beast, x, y)
 	self.beast = beast
 	self.icon:SetTexture(ns.GetLureIcon(beast))
+	local done = ns.IsBeastDone(beast)
+	self.icon:SetDesaturated(done)
+	self:SetAlpha(done and 0.6 or 1)
 	self:SetPosition(x, y)
 end
 

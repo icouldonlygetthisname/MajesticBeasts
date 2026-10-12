@@ -25,16 +25,19 @@ local function UpdateRow(row)
 	local status
 	local cooldown = ns.GetLureCooldown(beast)
 	local distance = ns.GetDistance(beast)
-	if cooldown > 0 then
+	if ns.IsBeastDone(beast) then
+		status = ns.GetAvailabilityText(beast)
+	elseif cooldown > 0 then
 		status = "|cffff5555Lure ready in " .. FormatDuration(cooldown) .. "|r"
 	elseif distance and distance <= 15 then
 		status = "|cff55ff55You are here|r"
-	elseif distance then
-		status = ("%d yds"):format(distance)
-	elseif count == 0 then
-		status = "|cff888888No lure|r"
 	else
-		status = ""
+		status = ns.GetAvailabilityText(beast)
+		if distance then
+			status = status .. (" - %d yds"):format(distance)
+		elseif count == 0 then
+			status = status .. " |cff888888(no lure)|r"
+		end
 	end
 	row.status:SetText(status)
 

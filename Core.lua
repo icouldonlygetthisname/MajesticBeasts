@@ -28,6 +28,15 @@ function ns.GetLureCount(beast)
 	return C_Item.GetItemCount(beast.lureID) or 0
 end
 
+-- True once the beast has been killed today; resets with the daily reset.
+function ns.IsBeastDone(beast)
+	return C_QuestLog.IsQuestFlaggedCompleted(beast.questID) or false
+end
+
+function ns.GetAvailabilityText(beast)
+	return ns.IsBeastDone(beast) and "|cffff5555Done today|r" or "|cff55ff55Available|r"
+end
+
 -- Seconds left on the lure's own cooldown, or 0 when it is ready/unknown.
 function ns.GetLureCooldown(beast)
 	local start, duration = C_Container.GetItemCooldown(beast.lureID)
@@ -80,7 +89,7 @@ local function CheckArrival()
 	if not MajesticBeastsDB.alert or UnitOnTaxi("player") then return end
 	for i, beast in ipairs(ns.BEASTS) do
 		local distance = ns.GetDistance(beast)
-		local near = distance and distance <= ARRIVE_YARDS
+		local near = distance and distance <= ARRIVE_YARDS and not ns.IsBeastDone(beast)
 		if near and not arrived[i] then
 			local msg = ("You're at the %s spot."):format(beast.beast)
 			if IsMounted() then
@@ -127,6 +136,15 @@ SlashCmdList.MAJESTICBEASTS = function(msg)
 	elseif msg == "alert" then
 		MajesticBeastsDB.alert = not MajesticBeastsDB.alert
 		ns.Print("Arrival alert " .. (MajesticBeastsDB.alert and "on." or "off."))
+	elseif msg == "status" then
+		local available = 0
+		for _, beast in ipairs(ns.BEASTS) do
+			if not ns.IsBeastDone(beast) then
+				available = available + 1
+			end
+			ns.Print(("%s (%s): %s"):format(beast.beast, beast.zone, ns.GetAvailabilityText(beast)))
+		end
+		ns.Print(("%d of %d beasts available today."):format(available, #ns.BEASTS))
 	elseif msg == "list" then
 		for _, beast in ipairs(ns.BEASTS) do
 			ns.Print(("%s - %s %s (%s)"):format(beast.beast, beast.zone, ns.FormatCoords(beast), ns.GetLureName(beast)))
@@ -135,6 +153,7 @@ SlashCmdList.MAJESTICBEASTS = function(msg)
 		ns.ToggleWindow()
 	else
 		ns.Print("/majestic - toggle the window")
+		ns.Print("/majestic status - print which beasts are still available today")
 		ns.Print("/majestic list - print all lure spots to chat")
 		ns.Print("/majestic pins - toggle world map pins")
 		ns.Print("/majestic alert - toggle the arrival alert")

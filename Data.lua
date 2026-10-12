@@ -3,6 +3,7 @@ local _, ns = ...
 -- Lure spots for the Midnight skinning Majestic Beasts.
 -- x/y are zone map coordinates (0-100). The spots are small: stand on foot
 -- until the "Sixth Sense" debuff appears, then use the lure.
+-- questID = hidden daily quest flagged once the beast has been killed today.
 -- points = Skinning specialization points needed to unlock the lure recipe.
 ns.BEASTS = {
 	{
@@ -10,6 +11,7 @@ ns.BEASTS = {
 		kind = "Cat",
 		lureID = 238652,
 		recipeID = 1225943,
+		questID = 88545,
 		lureName = "Majestic Eversong Lure",
 		mapID = 2395,
 		zone = "Eversong Woods",
@@ -22,6 +24,7 @@ ns.BEASTS = {
 		kind = "Turtle",
 		lureID = 238653,
 		recipeID = 1225944,
+		questID = 88526,
 		lureName = "Majestic Zul'Aman Lure",
 		mapID = 2437,
 		zone = "Zul'Aman",
@@ -34,6 +37,7 @@ ns.BEASTS = {
 		kind = "Sporeglider",
 		lureID = 238654,
 		recipeID = 1225945,
+		questID = 88531,
 		lureName = "Majestic Harandar Lure",
 		mapID = 2413,
 		zone = "Harandar",
@@ -46,6 +50,7 @@ ns.BEASTS = {
 		kind = "Shredclaw",
 		lureID = 238655,
 		recipeID = 1225946,
+		questID = 88532,
 		lureName = "Majestic Voidstorm Lure",
 		mapID = 2405,
 		zone = "Voidstorm",
@@ -58,6 +63,7 @@ ns.BEASTS = {
 		kind = "Grand Beast",
 		lureID = 238656,
 		recipeID = 1225948,
+		questID = 88524,
 		lureName = "Grand Beast Lure",
 		mapID = 2405,
 		zone = "Voidstorm",

@@ -18,7 +18,8 @@ Stand at the spot on foot until you get the **Sixth Sense** debuff, then use the
 
 - A window listing every beast with its lure, zone, coordinates, lures in your bags and live distance.
 - Click a row to set a waypoint (TomTom if installed, otherwise the built-in map pin). Shift-click to put the location in chat.
-- Pins on the zone and continent world maps.
+- Shows which beasts are still available today and which you have already killed.
+- Pins on the zone and continent world maps, greyed out for beasts already done.
 - A sound and chat alert when you arrive at a lure spot.
 - A Craft button per lure, enabled when you have the reagents. The first click of a session opens Skinning; click again to craft.
 
@@ -44,6 +45,7 @@ Hovering a row in the window or a pin on the world map shows the same tooltip:
 | Type | Cat, Turtle, Sporeglider, Shredclaw or Grand Beast |
 | Lure | The lure item to use at this spot |
 | Location | Zone and coordinates |
+| Today | Available or Done today |
 | In bags | How many of that lure you are carrying |
 | Recipe unlock | Skinning specialization points needed to learn the lure (hidden for the Eversong lure, which is free) |
 | Placement note | A landmark description of the spot, e.g. "under the large bridge by the small lake, not on top of it" |
@@ -55,10 +57,11 @@ The tooltip ends with the available clicks: click to set a waypoint, and (in the
 
 The right side of each row shows, without hovering:
 
+- **Done today** - you have already killed this beast today; it resets with the daily reset
 - **Lure ready in ...** - the lure item is on cooldown
 - **You are here** - you are within 15 yards of the spot
-- **N yds** - distance to the spot when you are on the same continent
-- **No lure** - you have none in your bags and are too far away for a distance
+- **Available - N yds** - not killed yet today, with the distance when you are on the same continent
+- **Available (no lure)** - not killed yet, but you have no lure in your bags
 - The lure icon is greyed out when you have none, and shows a count when you do.
 
 ### Craft button
@@ -70,6 +73,7 @@ Clicking it crafts one lure. The game only allows this while Skinning is loaded,
 ## Commands
 
 - `/majestic` or `/mbeasts` - toggle the window
+- `/majestic status` - print which beasts are still available today
 - `/majestic list` - print all lure spots to chat
 - `/majestic pins` - toggle world map pins
 - `/majestic alert` - toggle the arrival alert
