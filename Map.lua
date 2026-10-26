@@ -20,6 +20,10 @@ end
 -- Pin
 MajesticBeastsPinMixin = CreateFromMixins(MapCanvasPinMixin)
 
+-- AcquirePin calls this via CheckMouseButtonPassthrough, but it is protected in
+-- combat (ADDON_ACTION_BLOCKED when the map opens in combat). Pins don't need it.
+function MajesticBeastsPinMixin:SetPassThroughButtons() end
+
 function MajesticBeastsPinMixin:OnLoad()
 	self:UseFrameLevelType("PIN_FRAME_LEVEL_AREA_POI")
 	self:SetScalingLimits(1, 1.0, 1.2)
