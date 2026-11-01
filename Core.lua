@@ -46,24 +46,51 @@ function ns.GetLureCooldown(beast)
 	return math.max(0, start + duration - GetTime())
 end
 
-local function GetWorldPos(mapID, x, y)
-	local continent, pos = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(x, y))
-	return continent, pos
+ns.SKINNING = 393
+
+local function IsSkinning(index)
+	return index and select(7, GetProfessionInfo(index)) == ns.SKINNING
+end
+
+function ns.HasSkinning()
+	local prof1, prof2 = GetProfessions()
+	return IsSkinning(prof1) or IsSkinning(prof2) or false
+end
+
+-- Lure spots never move, so their world positions are looked up once.
+local beastWorld = {}
+local function GetBeastWorldPos(beast)
+	local cached = beastWorld[beast]
+	if not cached then
+		local continent, pos = C_Map.GetWorldPosFromMapPos(beast.mapID, CreateVector2D(beast.x / 100, beast.y / 100))
+		if not pos then return end
+		cached = { continent = continent, pos = pos }
+		beastWorld[beast] = cached
+	end
+	return cached.continent, cached.pos
+end
+
+-- Nil when the player has no position (instances).
+local function GetPlayerWorldPos()
+	local playerMap = C_Map.GetBestMapForUnit("player")
+	if not playerMap then return end
+	local playerPos = C_Map.GetPlayerMapPosition(playerMap, "player")
+	if not playerPos then return end
+	return C_Map.GetWorldPosFromMapPos(playerMap, playerPos)
+end
+
+local function DistanceFrom(pContinent, pWorld, beast)
+	local bContinent, bWorld = GetBeastWorldPos(beast)
+	if not pWorld or not bWorld or pContinent ~= bContinent then return end
+	local dx, dy = pWorld.x - bWorld.x, pWorld.y - bWorld.y
+	return math.sqrt(dx * dx + dy * dy)
 end
 
 -- Distance in yards from the player to the lure spot, nil when the player
 -- is on another continent or has no position (instances).
 function ns.GetDistance(beast)
-	local playerMap = C_Map.GetBestMapForUnit("player")
-	if not playerMap then return end
-	local playerPos = C_Map.GetPlayerMapPosition(playerMap, "player")
-	if not playerPos then return end
-	local px, py = playerPos:GetXY()
-	local pContinent, pWorld = GetWorldPos(playerMap, px, py)
-	local bContinent, bWorld = GetWorldPos(beast.mapID, beast.x / 100, beast.y / 100)
-	if not pWorld or not bWorld or pContinent ~= bContinent then return end
-	local dx, dy = pWorld.x - bWorld.x, pWorld.y - bWorld.y
-	return math.sqrt(dx * dx + dy * dy)
+	local pContinent, pWorld = GetPlayerWorldPos()
+	return DistanceFrom(pContinent, pWorld, beast)
 end
 
 function ns.SetWaypoint(beast, quiet)
@@ -86,9 +113,10 @@ end
 -- One-shot chat alert when the player walks onto a lure spot.
 local arrived = {}
 local function CheckArrival()
-	if not MajesticBeastsDB.alert or UnitOnTaxi("player") then return end
+	if UnitOnTaxi("player") then return end
+	local pContinent, pWorld = GetPlayerWorldPos()
 	for i, beast in ipairs(ns.BEASTS) do
-		local distance = ns.GetDistance(beast)
+		local distance = DistanceFrom(pContinent, pWorld, beast)
 		local near = distance and distance <= ARRIVE_YARDS and not ns.IsBeastDone(beast)
 		if near and not arrived[i] then
 			local msg = ("You're at the %s spot."):format(beast.beast)
@@ -104,25 +132,45 @@ local function CheckArrival()
 	end
 end
 
+-- The alert only runs on characters with Skinning, and only while enabled.
+local ticker
+local function UpdateArrivalTicker()
+	local wanted = MajesticBeastsDB.alert and ns.HasSkinning()
+	if wanted and not ticker then
+		ticker = C_Timer.NewTicker(1, CheckArrival)
+	elseif not wanted and ticker then
+		ticker:Cancel()
+		ticker = nil
+		wipe(arrived)
+	end
+end
+
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", function(self, event, name)
-	if name ~= addonName then return end
-	self:UnregisterEvent("ADDON_LOADED")
+	if event == "ADDON_LOADED" then
+		if name ~= addonName then return end
+		self:UnregisterEvent("ADDON_LOADED")
 
-	MajesticBeastsDB = MajesticBeastsDB or {}
-	for key, value in pairs(defaults) do
-		if MajesticBeastsDB[key] == nil then
-			MajesticBeastsDB[key] = value
+		MajesticBeastsDB = MajesticBeastsDB or {}
+		for key, value in pairs(defaults) do
+			if MajesticBeastsDB[key] == nil then
+				MajesticBeastsDB[key] = value
+			end
 		end
-	end
 
-	-- Prime the item cache so lure names and icons are localized.
-	for _, beast in ipairs(ns.BEASTS) do
-		C_Item.RequestLoadItemDataByID(beast.lureID)
-	end
+		-- Prime the item cache so lure names and icons are localized.
+		for _, beast in ipairs(ns.BEASTS) do
+			C_Item.RequestLoadItemDataByID(beast.lureID)
+		end
 
-	C_Timer.NewTicker(1, CheckArrival)
+		-- Profession info isn't reliable until login; SKILL_LINES_CHANGED
+		-- covers learning or dropping Skinning later.
+		self:RegisterEvent("PLAYER_LOGIN")
+		self:RegisterEvent("SKILL_LINES_CHANGED")
+	else
+		UpdateArrivalTicker()
+	end
 end)
 
 SLASH_MAJESTICBEASTS1 = "/majestic"
@@ -135,7 +183,9 @@ SlashCmdList.MAJESTICBEASTS = function(msg)
 		ns.Print("World map pins " .. (MajesticBeastsDB.pins and "shown." or "hidden."))
 	elseif msg == "alert" then
 		MajesticBeastsDB.alert = not MajesticBeastsDB.alert
-		ns.Print("Arrival alert " .. (MajesticBeastsDB.alert and "on." or "off."))
+		UpdateArrivalTicker()
+		local suffix = MajesticBeastsDB.alert and not ns.HasSkinning() and " (inactive - this character has no Skinning)" or ""
+		ns.Print("Arrival alert " .. (MajesticBeastsDB.alert and "on" or "off") .. suffix .. ".")
 	elseif msg == "status" then
 		local available = 0
 		for _, beast in ipairs(ns.BEASTS) do

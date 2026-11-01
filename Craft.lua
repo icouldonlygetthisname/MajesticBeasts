@@ -1,7 +1,5 @@
 local _, ns = ...
 
-local SKINNING = 393
-
 local function GetReagentItemID(reagent)
 	return reagent.itemID or (reagent.reagent and reagent.reagent.itemID)
 end
@@ -86,8 +84,8 @@ function ns.CraftLure(beast)
 	end
 
 	local profession = C_TradeSkillUI.GetBaseProfessionInfo()
-	if not (profession and profession.professionID == SKINNING and C_TradeSkillUI.IsTradeSkillReady()) then
-		if C_TradeSkillUI.OpenTradeSkill(SKINNING) then
+	if not (profession and profession.professionID == ns.SKINNING and C_TradeSkillUI.IsTradeSkillReady()) then
+		if C_TradeSkillUI.OpenTradeSkill(ns.SKINNING) then
 			ns.Print("Opened Skinning - click Craft again to make the lure.")
 		else
 			ns.Print("You need the Skinning profession to craft lures.")

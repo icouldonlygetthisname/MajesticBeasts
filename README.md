@@ -20,7 +20,7 @@ Stand at the spot on foot until you get the **Sixth Sense** debuff, then use the
 - Click a row to set a waypoint (TomTom if installed, otherwise the built-in map pin). Shift-click to put the location in chat.
 - Shows which beasts are still available today and which you have already killed.
 - Pins on the zone and continent world maps, greyed out for beasts already done.
-- A sound and chat alert when you arrive at a lure spot.
+- A sound and chat alert when you arrive at a lure spot (only on characters with Skinning).
 - A Craft button per lure, enabled when you have the reagents. The first click of a session opens Skinning; click again to craft.
 
 ## How to use
@@ -76,7 +76,7 @@ Clicking it crafts one lure. The game only allows this while Skinning is loaded,
 - `/majestic status` - print which beasts are still available today
 - `/majestic list` - print all lure spots to chat
 - `/majestic pins` - toggle world map pins
-- `/majestic alert` - toggle the arrival alert
+- `/majestic alert` - toggle the arrival alert (it never runs on characters without Skinning)
 
 ## Install
 
